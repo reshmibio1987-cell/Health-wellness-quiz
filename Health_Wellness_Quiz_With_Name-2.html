@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Health & Wellness Quiz</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#e0f7fa,#e8f5e9);color:#263238}
+.wrap{max-width:760px;margin:auto;padding:20px}.card{background:#fff;border-radius:22px;padding:25px;box-shadow:0 8px 30px #0002}
+h1{text-align:center;color:#1976d2;margin:4px 0 8px}.sub{text-align:center;color:#607d8b;margin-bottom:20px}
+input[type=text]{width:100%;padding:14px;border:2px solid #ddd;border-radius:12px;font-size:16px;margin:8px 0 15px}
+button{width:100%;padding:14px;border:0;border-radius:12px;background:#1976d2;color:#fff;font-weight:bold;font-size:16px;cursor:pointer;margin-top:10px}
+button:hover{background:#1565c0}.hidden{display:none}.top{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.badge{padding:8px 12px;border-radius:12px;background:#e3f2fd;font-weight:bold}.timer{background:#fff3e0;color:#e65100}
+.progress{height:8px;background:#eee;border-radius:10px;overflow:hidden;margin:12px 0 22px}.bar{height:100%;background:#42a5f5;width:0}
+.q{font-size:19px;font-weight:bold;line-height:1.45;margin-bottom:15px}.opt{display:block;border:2px solid #e0e0e0;border-radius:12px;padding:12px;margin:9px 0;cursor:pointer}.opt:hover{background:#f5fbff;border-color:#64b5f6}
+.score{font-size:44px;font-weight:bold;color:#1976d2;text-align:center;margin:18px}.result{text-align:center}.review{text-align:left;margin-top:20px}.item{padding:12px;margin:9px 0;border-radius:10px;background:#f7f9fa}.good{border-left:5px solid #43a047}.bad{border-left:5px solid #e53935}.small{font-size:13px;color:#78909c}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+
+<div id="start">
+<h1>Health & Wellness Quiz</h1>
+<div class="sub">College Practice • Quiz + Exercise & Fitness</div>
+<label><b>Enter your name</b></label>
+<input id="name" type="text" placeholder="Enter your full name">
+<button onclick="startQuiz()">Start Quiz</button>
+<p class="small">20 questions • 20 marks • 10 minutes</p>
+</div>
+
+<div id="quiz" class="hidden">
+<h1>Health & Wellness</h1>
+<div class="top"><div class="badge" id="count"></div><div class="badge timer" id="timer">10:00</div></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div id="box"></div>
+<button onclick="next()" id="next">Next Question</button>
+</div>
+
+<div id="result" class="hidden result">
+<h1>Quiz Completed!</h1>
+<p id="hello"></p><div class="score" id="score"></div><p id="msg"></p>
+<div class="review" id="review"></div>
+<button onclick="location.reload()">Take Quiz Again</button>
+</div>
+
+</div></div>
+<script>
+const qs=[
+["Which exercise mainly strengthens the muscles of the thighs and hips?","Squats","Wrist circles","Neck rotation","Eye exercise",0],
+["What is a good purpose of warming up before exercise?","To prepare the body gradually for activity","To make the body completely tired","To replace drinking water","To avoid all movement",0],
+["Which activity is mainly a cardiovascular exercise?","Brisk walking","Static stretching","Finger movement","Meditation",0],
+["Which exercise is commonly used to strengthen the core?","Plank","Toe touching only","Wrist rotation","Slow blinking",0],
+["What is one important benefit of regular physical activity?","It supports cardiovascular fitness and overall health","It removes the need for sleep","It guarantees no illness","It replaces a balanced diet",0],
+["Which nutrient is mainly needed for growth and repair of body tissues?","Protein","Water","Vitamin C","Fibre",0],
+["Which is a healthy way to manage stress?","Deep breathing, relaxation or physical activity","Skipping sleep","Ignoring every problem","Using harmful substances",0],
+["How much sleep is generally recommended for most adults aged 18–60?","3–4 hours","5 hours","7 or more hours","12–14 hours",2],
+["Which exercise involves repeatedly moving the arms and legs outward and inward while jumping?","Jumping jacks","Plank","Squats","Calf stretch",0],
+["Why is stretching useful when included appropriately in a fitness routine?","It can help maintain flexibility and range of motion","It replaces all strength training","It removes the need for warm-up","It guarantees injury prevention",0],
+["Which is the best example of a balanced diet?","A variety of foods supplying different nutrients","Only fruits","Only protein foods","Skipping meals",0],
+["What is one major function of water in the body?","Helping regulate body temperature and body processes","Providing all vitamins","Replacing every nutrient","Building all muscle tissue",0],
+["Which exercise is commonly used to strengthen the calf muscles?","Calf raises","Plank","Arm circles","Neck stretch",0],
+["What should you generally do if you feel dizzy or unwell during exercise?","Stop and seek appropriate help if needed","Continue at a higher intensity","Ignore the feeling","Avoid water",0],
+["Which habit supports good mental wellness?","Maintaining sleep, activity, relaxation and supportive relationships","Never taking breaks","Avoiding all social contact","Studying without sleep",0],
+["Which mineral is important for strong bones and teeth?","Calcium","Sodium","Chlorine","Iodine",0],
+["Which exercise is mainly a flexibility activity?","Gentle stretching","Sprinting","Heavy lifting","Fast jumping",0],
+["Which practice helps reduce the spread of infections?","Regular handwashing","Sharing towels","Sharing toothbrushes","Skipping hygiene",0],
+["Which is a sensible hydration habit during normal daily activity?","Drink adequate fluids according to thirst and individual needs","Avoid water all day","Replace all water with soft drinks","Drink only at bedtime",0],
+["Holistic wellness includes attention to:","Physical, mental/emotional and social well-being","Only physical appearance","Only academic marks","Only exercise",0]
+];
+let name="",i=0,ans=[],time=600,interval;
+function startQuiz(){
+ name=document.getElementById("name").value.trim();
+ if(!name){alert("Please enter your name.");return}
+ document.getElementById("start").classList.add("hidden");document.getElementById("quiz").classList.remove("hidden");
+ render();interval=setInterval(tick,1000);
+}
+function render(){
+ let q=qs[i];document.getElementById("count").textContent=`Question ${i+1} of ${qs.length}`;
+ document.getElementById("bar").style.width=(i/qs.length*100)+"%";
+ let s=`<div class="q">${q[0]}</div>`;
+ for(let x=1;x<=4;x++)s+=`<label class="opt"><input type="radio" name="a" value="${x-1}"> ${q[x]}</label>`;
+ document.getElementById("box").innerHTML=s;
+ document.getElementById("next").textContent=i===qs.length-1?"Submit Quiz":"Next Question";
+}
+function next(){
+ let a=document.querySelector('input[name="a"]:checked');if(!a){alert("Please select an answer.");return}
+ ans[i]=+a.value;if(i<qs.length-1){i++;render()}else finish();
+}
+function tick(){
+ time--;let m=Math.floor(time/60),s=time%60;document.getElementById("timer").textContent=`${m}:${String(s).padStart(2,"0")}`;
+ if(time<=0){clearInterval(interval);finish();}
+}
+function finish(){
+ clearInterval(interval);let score=qs.reduce((n,q,k)=>n+(ans[k]===q[5]?1:0),0);
+ document.getElementById("quiz").classList.add("hidden");document.getElementById("result").classList.remove("hidden");
+ document.getElementById("hello").textContent=`Well done, ${name}!`;
+ document.getElementById("score").textContent=`${score} / 20`;
+ document.getElementById("msg").textContent=score>=18?"Excellent performance!":score>=14?"Good job! Keep practising.":"Keep revising—you can improve!";
+ let r="";qs.forEach((q,k)=>{let ok=ans[k]===q[5];r+=`<div class="item ${ok?'good':'bad'}"><b>${k+1}. ${q[0]}</b><br>Your answer: ${ans[k]==null?"Not answered":q[ans[k]+1]}<br>Correct answer: ${q[q[5]+1]}</div>`});document.getElementById("review").innerHTML=r;
+}
+</script>
+</body></html>
